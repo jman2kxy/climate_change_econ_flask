@@ -59,7 +59,8 @@ nav_menu = dbc.Nav(
             nav=True,
             in_navbar=True,
             label='Grain Production'
-        )
+        ),
+        dbc.NavItem(dbc.NavLink("Climate Readiness/Vulnerability", href="/readiness", id = "ready-link"))
     ]
 
 )
@@ -255,6 +256,37 @@ b2_layout = html.Div([
     ])
 ])
 
+readiness_layout = html.Div([
+    nav_menu,
+    html.H1("Climate Change Readiness/Vulnerability", style={'text-align':'center'}),
+
+    dcc.Dropdown(id='readiness',
+                 options=[
+                     {'label': 'Capacity', 'value': 'Capacity'},
+                     {'label': 'Exposure', 'value': 'Exposure'},
+                     {'label': 'Sensitivity', 'value': 'Sensitivity'},
+                     {'label': 'Vulnerability', 'value': 'Vulnerability'},
+                     {'label': 'Economic', 'value': 'Economic'},
+                     {'label': 'Governance', 'value': 'Governance'},
+                     {'label': 'Social', 'value': 'Social'},
+                     {'label': 'Readiness', 'value': 'Readiness'}
+                 ],placeholder="Choose a Variable"),
+
+    html.Div([
+        dcc.Graph(id='readiness-graph')
+    ]),
+
+    html.Div(id='output_year', children=[]),
+
+    dcc.Slider(
+        id = 'ready_year',
+        min = min(read_vul['Year']),
+        max = max(read_vul['Year']),
+        step = 1,
+        value = min(read_vul['Year'])
+    )
+])
+
 #--------------------------------------------------------------------------------
 # Connect the Plotly graphs with Dash Components
 @app.callback(Output('page-content', 'children'), [Input('url', 'pathname')])
@@ -279,6 +311,8 @@ def display_page(pathname):
         return b1_layout
     elif pathname == '/B2':
         return b2_layout
+    elif pathname == '/readiness':
+        return readiness_layout
     else:
         return index_layout
 
@@ -475,6 +509,31 @@ def b2_output(scenario):
         fig.update_layout(title=dict(font=dict(size=28),x=0.5,xanchor='center'),
                           margin=dict(l=60, r=60, t=50, b=50))
         return fig
+
+@app.callback(
+    [Output(component_id='output_year', component_property='children'),
+     Output(component_id='readiness-graph', component_property='figure')],
+    [Input(component_id='readiness', component_property='value'),
+     Input(component_id='ready_year', component_property='value')]
+)
+def readiness_output(variable, year):
+
+
+    container = "The year is {}".format(year)
+
+    if variable is None:
+        raise PreventUpdate
+    else:
+        df = read_vul[read_vul.Year == year]
+        fig = px.choropleth(df, locations="Country",
+                            color=variable,
+                            hover_name="Country",
+                            projection='natural earth',
+                            color_continuous_scale=px.colors.sequential.Plasma)
+
+        fig.update_layout(title=dict(font=dict(size=28),x=0.5,xanchor='center'),
+                          margin=dict(l=60, r=60, t=50, b=50))
+        return container, fig
 
 if __name__ == '__main__':
     app.run_server(debug=True)
