@@ -12,6 +12,8 @@ import plotly.graph_objects as go
 app = dash.Dash(__name__, external_stylesheets= [dbc.themes.BOOTSTRAP])
 
 app.config.suppress_callback_exceptions = True
+app.css.append_css({'external_url': '/assets/stylesheet.css'})
+app.server.static_folder = 'assets'  # if you run app.py from 'root-dir-name' you don't need to specify.
 
 co2_start = pd.read_csv("data_csv/luthico2_start.csv")
 co2_middle = pd.read_csv("data_csv/muere_data.csv")
@@ -35,7 +37,7 @@ gsl_merged = pd.read_csv("data_csv/sl_merged.csv")
 
 nav_menu = dbc.Nav(
     [
-        dbc.NavItem(dbc.NavLink("Home", href="/", id = "home-link")),
+        dbc.NavItem(dbc.NavLink("Home", href="/", id = "home-link", style={"color":"white", "fontWeight":"bold"})),
         dbc.DropdownMenu(
             children=[
                 dbc.DropdownMenuItem("Carbon Dioxide Concentration", href='/co2', id = "co2-link"),
@@ -47,7 +49,8 @@ nav_menu = dbc.Nav(
             ],
             nav=True,
             in_navbar=True,
-            label='Climate Change Charts'
+            label='Climate Change Charts',
+            style={"color":"white", "fontWeight":"bold"}
         ),
         dbc.DropdownMenu(
             children = [
@@ -58,10 +61,12 @@ nav_menu = dbc.Nav(
             ],
             nav=True,
             in_navbar=True,
-            label='Grain Production'
+            label='Grain Production',
+            style={"color":"white", "fontWeight":"bold"}
         ),
-        dbc.NavItem(dbc.NavLink("Climate Readiness/Vulnerability", href="/readiness", id = "ready-link"))
-    ]
+        dbc.NavItem(dbc.NavLink("Climate Readiness/Vulnerability", href="/readiness", id = "ready-link", style={"color":"white", "fontWeight":"bold"}))
+    ],
+    style={'background-color':'#2A3F54','fontFamily':'Lato'}
 
 )
 
@@ -72,17 +77,19 @@ nav_menu = dbc.Nav(
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     html.Div(id='page-content')
-])
+],style={'backgroundColor':'#EAEAEA'}
+
+)
 
 index_layout = html.Div([
     nav_menu,
-    html.H1("Climate Change Economics", style={'text-align':'center'})
-])
+    html.H1("Climate Change Economics", style={'text-align':'center','fontFamily':'Lato'})
+],style={'fontFamily':'Lato'})
 
 co2_layout = html.Div([
     nav_menu,
 
-    html.H1("Carbon Dioxide Concentration", style={'text-align':'center'}),
+    html.H1("Carbon Dioxide Concentration", style={'text-align':'center','fontFamily':'Lato'}),
 
     dcc.RangeSlider(
         id = 'co2_conc',
@@ -92,17 +99,17 @@ co2_layout = html.Div([
         value = [min(co2_merged['Year']), max(co2_merged['Year'])]
     ),
 
-    html.Div(id='output_co_year_range', children=[]),
+    html.Div(id='output_co_year_range', children=[], style={'text-align':'center'}),
     html.Br(),
 
     dcc.Graph(id='co2_graph', figure={})
 
 
-])
+],style={'fontFamily':'Lato'})
 
 co2_choro_layout = html.Div([
     nav_menu,
-    html.H1("Carbon Dioxide Emission (kg per 2010 US$ of GDP)", style={'text-align': 'center'}),
+    html.H1("Carbon Dioxide Emission (kg per 2010 US$ of GDP)", style={'text-align': 'center','fontFamily':'Lato'}),
 
     html.Div([
         dcc.Graph(id='co2_choropleth')
@@ -113,13 +120,13 @@ co2_choro_layout = html.Div([
                   max=2014, min=min(co2_kg_gdp['Year']), step=1, required=True),
         html.Button(id='submit_button',children='Submit'),
         html.Div(id='output_state'),
-    ],style={'text-align': 'center'}),
-])
+    ],style={'text-align': 'center','fontFamily':'Lato'}),
+],style={'fontFamily':'Lato'})
 
 
 temp_layout = html.Div([
     nav_menu,
-    html.H1("Surface Temperature", style={'text-align':'center'}),
+    html.H1("Surface Temperature", style={'text-align':'center','fontFamily':'Lato'}),
 
     dcc.RangeSlider(
         id = 'temp_year',
@@ -129,15 +136,15 @@ temp_layout = html.Div([
         value = [min(temp_merged['Year']), max(temp_merged['Year'])]
     ),
 
-    html.Div(id='output_temp_year_range', children=[]),
+    html.Div(id='output_temp_year_range', children=[], style={'text-align':'center'}),
     html.Br(),
 
     dcc.Graph(id='temp_graph', figure={})
-])
+],style={'fontFamily':'Lato'})
 
 antarc_layout = html.Div([
     nav_menu,
-    html.H1("Change in the Mass of Antarctica Since 2002", style={'text-align':'center'}),
+    html.H1("Change in the Mass of Antarctica Since 2002", style={'text-align':'center','fontFamily':'Lato'}),
 
     dcc.RangeSlider(
         id = 'arc_year',
@@ -147,15 +154,15 @@ antarc_layout = html.Div([
         value = [min(antarc_mass['Time']), max(antarc_mass['Time'])]
     ),
 
-    html.Div(id='output_arc_year_range', children=[]),
+    html.Div(id='output_arc_year_range', children=[], style={'text-align':'center'}),
     html.Br(),
 
     dcc.Graph(id='arc_graph', figure={})
-])
+],style={'fontFamily':'Lato'})
 
 sea_layout = html.Div([
     nav_menu,
-    html.H1("Change in Global Sea Level in Common Era", style={'text-align':'center'}),
+    html.H1("Change in Global Sea Level in Common Era", style={'text-align':'center','fontFamily':'Lato'}),
 
     dcc.RangeSlider(
         id = 'sea_year',
@@ -165,16 +172,16 @@ sea_layout = html.Div([
         value = [min(gsl_merged['Year']), max(gsl_merged['Year'])]
     ),
 
-    html.Div(id='output_gsl_year_range', children=[]),
+    html.Div(id='output_gsl_year_range', children=[], style={'text-align':'center'}),
     html.Br(),
 
     dcc.Graph(id='gsl_graph', figure={})
-])
+],style={'fontFamily':'Lato'})
 
 
 scc_layout = html.Div([
     nav_menu,
-    html.H1("The Projection of the Social Cost of Carbon to the Year 2200", style={'text-align':'center'}),
+    html.H1("The Projection of the Social Cost of Carbon to the Year 2200", style={'text-align':'center','fontFamily':'Lato'}),
 
     dcc.RangeSlider(
         id = 'scc_year',
@@ -184,15 +191,15 @@ scc_layout = html.Div([
         value = [min(dice_model['Year']), max(dice_model['Year'])]
     ),
 
-    html.Div(id='output_scc_year_range', children=[]),
+    html.Div(id='output_scc_year_range', children=[], style={'text-align':'center'}),
     html.Br(),
 
     dcc.Graph(id='scc_graph', figure={})
-])
+],style={'fontFamily':'Lato'})
 
 a1_layout = html.Div([
     nav_menu,
-    html.H1("A1 Scenario for Grain Production", style={'text-align':'center'}),
+    html.H1("A1 Scenario for Grain Production", style={'text-align':'center','fontFamily':'Lato'}),
 
     dcc.Dropdown(id='a1_scenario',
                  options=[
@@ -205,11 +212,11 @@ a1_layout = html.Div([
     html.Div([
         dcc.Graph(id='A1-graph')
     ])
-])
+],style={'fontFamily':'Lato'})
 
 a2_layout = html.Div([
     nav_menu,
-    html.H1("A2 Scenario for Grain Production", style={'text-align':'center'}),
+    html.H1("A2 Scenario for Grain Production", style={'text-align':'center','fontFamily':'Lato'}),
 
     dcc.Dropdown(id='a2_scenario',
                  options=[
@@ -222,11 +229,11 @@ a2_layout = html.Div([
     html.Div([
         dcc.Graph(id='A2-graph')
     ])
-])
+],style={'fontFamily':'Lato'})
 
 b1_layout = html.Div([
     nav_menu,
-    html.H1("B1 Scenario for Grain Production", style={'text-align':'center'}),
+    html.H1("B1 Scenario for Grain Production", style={'text-align':'center','fontFamily':'Lato'}),
 
     dcc.Dropdown(id='b1_scenario',
                  options=[
@@ -238,11 +245,11 @@ b1_layout = html.Div([
     html.Div([
         dcc.Graph(id='B1-graph')
     ])
-])
+],style={'fontFamily':'Lato'})
 
 b2_layout = html.Div([
     nav_menu,
-    html.H1("B2 Scenario for Grain Production", style={'text-align':'center'}),
+    html.H1("B2 Scenario for Grain Production", style={'text-align':'center','fontFamily':'Lato'}),
 
     dcc.Dropdown(id='b2_scenario',
                  options=[
@@ -254,11 +261,11 @@ b2_layout = html.Div([
     html.Div([
         dcc.Graph(id='B2-graph')
     ])
-])
+],style={'fontFamily':'Lato'})
 
 readiness_layout = html.Div([
     nav_menu,
-    html.H1("Climate Change Readiness/Vulnerability", style={'text-align':'center'}),
+    html.H1("Climate Change Readiness/Vulnerability", style={'text-align':'center','fontFamily':'Lato'}),
 
     dcc.Dropdown(id='readiness',
                  options=[
@@ -276,7 +283,7 @@ readiness_layout = html.Div([
         dcc.Graph(id='readiness-graph')
     ]),
 
-    html.Div(id='output_year', children=[]),
+    html.Div(id='output_year', children=[], style={'text-align':'center'}),
 
     dcc.Slider(
         id = 'ready_year',
@@ -285,7 +292,7 @@ readiness_layout = html.Div([
         step = 1,
         value = min(read_vul['Year'])
     )
-])
+],style={'fontFamily':'Lato'})
 
 #--------------------------------------------------------------------------------
 # Connect the Plotly graphs with Dash Components
@@ -329,7 +336,8 @@ def co2_output(co2_conc):
 
     fig = px.line(data_frame=co2_merged_range,
               x = 'Year',
-              y = ' CO2_ppm'
+              y = ' CO2_ppm',
+              template='seaborn'
               )
 
     return (container, fig)
@@ -352,7 +360,8 @@ def co2_choro_output(num_clicks, val_selected):
                             color="Emission",
                             hover_name="Country_Name",
                             projection='natural earth',
-                            color_continuous_scale=px.colors.sequential.Plasma)
+                            color_continuous_scale=px.colors.sequential.Plasma,
+                            template='seaborn')
 
         fig.update_layout(title=dict(font=dict(size=28),x=0.5,xanchor='center'),
                           margin=dict(l=60, r=60, t=50, b=50))
@@ -372,7 +381,8 @@ def temp_output(temp_year):
 
     fig = px.line(data_frame=temp_merged_range,
               x = 'Year',
-              y = 'Temp'
+              y = 'Temp',
+              template='seaborn'
               )
     return container, fig
 
@@ -391,7 +401,8 @@ def antarc_output(arc_year):
 
     fig = px.line(data_frame=arc_merged_range,
               x = 'Time',
-              y = 'mass_GT'
+              y = 'mass_GT',
+              template='seaborn'
               )
     return container, fig
 
@@ -409,7 +420,8 @@ def gsl_output(sea_year):
 
     fig = px.line(data_frame = sea_merged_range,
               x = 'Year',
-              y = 'sea_level'
+              y = 'sea_level',
+              template='seaborn'
               )
     return container, fig
 
@@ -426,7 +438,8 @@ def scc_output(scc_year):
 
     fig = px.line(data_frame = scc_merged_range,
               x = 'Year',
-              y = 'Social_Cost_of_Carbon_Optimal_Tax '
+              y = 'Social_Cost_of_Carbon_Optimal_Tax ',
+              template='seaborn'
               )
     return container, fig
 
@@ -444,7 +457,8 @@ def a1_output(scenario):
                             color=scenario,
                             hover_name="Country",
                             projection='natural earth',
-                            color_continuous_scale=px.colors.sequential.Plasma)
+                            color_continuous_scale=px.colors.sequential.Plasma,
+                            template='seaborn')
 
         fig.update_layout(title=dict(font=dict(size=28),x=0.5,xanchor='center'),
                           margin=dict(l=60, r=60, t=50, b=50))
@@ -464,7 +478,8 @@ def a2_output(scenario):
                             color=scenario,
                             hover_name="Country",
                             projection='natural earth',
-                            color_continuous_scale=px.colors.sequential.Plasma)
+                            color_continuous_scale=px.colors.sequential.Plasma,
+                            template='seaborn')
 
         fig.update_layout(title=dict(font=dict(size=28),x=0.5,xanchor='center'),
                           margin=dict(l=60, r=60, t=50, b=50))
@@ -484,7 +499,8 @@ def b1_output(scenario):
                             color=scenario,
                             hover_name="Country",
                             projection='natural earth',
-                            color_continuous_scale=px.colors.sequential.Plasma)
+                            color_continuous_scale=px.colors.sequential.Plasma,
+                            template='seaborn')
 
         fig.update_layout(title=dict(font=dict(size=28),x=0.5,xanchor='center'),
                           margin=dict(l=60, r=60, t=50, b=50))
@@ -504,7 +520,8 @@ def b2_output(scenario):
                             color=scenario,
                             hover_name="Country",
                             projection='natural earth',
-                            color_continuous_scale=px.colors.sequential.Plasma)
+                            color_continuous_scale=px.colors.sequential.Plasma,
+                            template='seaborn')
 
         fig.update_layout(title=dict(font=dict(size=28),x=0.5,xanchor='center'),
                           margin=dict(l=60, r=60, t=50, b=50))
@@ -529,7 +546,8 @@ def readiness_output(variable, year):
                             color=variable,
                             hover_name="Country",
                             projection='natural earth',
-                            color_continuous_scale=px.colors.sequential.Plasma)
+                            color_continuous_scale=px.colors.sequential.Plasma,
+                            template='seaborn')
 
         fig.update_layout(title=dict(font=dict(size=28),x=0.5,xanchor='center'),
                           margin=dict(l=60, r=60, t=50, b=50))
