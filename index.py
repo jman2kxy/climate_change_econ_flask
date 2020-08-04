@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -9,11 +8,11 @@ import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 
-app = dash.Dash(__name__, external_stylesheets= [dbc.themes.BOOTSTRAP])
+app = dash.Dash(__name__, external_stylesheets= [dbc.themes.BOOTSTRAP, '/assets/stylesheet.css'])
 
 app.config.suppress_callback_exceptions = True
-app.css.append_css({'external_url': '/assets/stylesheet.css'})
-app.server.static_folder = 'assets'  # if you run app.py from 'root-dir-name' you don't need to specify.
+#app.css.append_css({'external_url': '/assets/stylesheet.css'})
+#app.server.static_folder = 'assets'  # if you run app.py from 'root-dir-name' you don't need to specify.
 
 co2_start = pd.read_csv("data_csv/luthico2_start.csv")
 co2_middle = pd.read_csv("data_csv/muere_data.csv")
@@ -34,6 +33,11 @@ antarc_mass = pd.read_csv("data_csv/antarctica_mass.csv")
 green_mass = pd.read_csv("data_csv/greenland_mass.csv")
 dice_model = pd.read_csv("data_csv/DICE_model.csv")
 gsl_merged = pd.read_csv("data_csv/sl_merged.csv")
+
+weather = pd.read_csv("data_csv/weather-events-US-1980-2017.csv")
+weather['Year'] = weather['Begin Date'].astype(str)
+weather['Year'] = weather['Year'].str.slice(0,4)
+weather['Year'] = weather['Year'].astype(int)
 
 nav_menu = dbc.Nav(
     [
@@ -64,7 +68,8 @@ nav_menu = dbc.Nav(
             label='Grain Production',
             style={"color":"white", "fontWeight":"bold"}
         ),
-        dbc.NavItem(dbc.NavLink("Climate Readiness/Vulnerability", href="/readiness", id = "ready-link", style={"color":"white", "fontWeight":"bold"}))
+        dbc.NavItem(dbc.NavLink("Climate Readiness/Vulnerability", href="/readiness", id = "ready-link", style={"color":"white", "fontWeight":"bold"})),
+        dbc.NavItem(dbc.NavLink("Cost of Natural Disasters", href="/disaster", id = "disaster-link", style={"color":"white", "fontWeight":"bold"}))
     ],
     style={'background-color':'#2A3F54','fontFamily':'Lato'}
 
@@ -290,9 +295,32 @@ readiness_layout = html.Div([
         min = min(read_vul['Year']),
         max = max(read_vul['Year']),
         step = 1,
-        value = min(read_vul['Year'])
+        value = max(read_vul['Year'])
     )
 ],style={'fontFamily':'Lato'})
+
+def disaster_output():
+
+    fig = px.scatter(data_frame=weather,
+              x = 'Year',
+              y = 'Total CPI-Adjusted Cost (Millions of Dollars)',
+              size = 'Total CPI-Adjusted Cost (Millions of Dollars)',
+              color = 'Disaster',
+              hover_name="Name",
+              template='seaborn'
+              )
+    return (fig)
+
+
+disaster_layout = html.Div([
+    nav_menu,
+    html.H1("Billion-Dollar Weather and Climate Disasters", style={'text-align':'center','fontFamily':'Lato'}),
+
+    html.Br(),
+
+    dcc.Graph(id='disaster_graph', figure=disaster_output())
+],style={'fontFamily':'Lato'})
+
 
 #--------------------------------------------------------------------------------
 # Connect the Plotly graphs with Dash Components
@@ -320,8 +348,11 @@ def display_page(pathname):
         return b2_layout
     elif pathname == '/readiness':
         return readiness_layout
+    elif pathname == '/disaster':
+        return disaster_layout
     else:
         return index_layout
+
 
 @app.callback(
     [Output(component_id='output_co_year_range', component_property='children'),
@@ -554,4 +585,5 @@ def readiness_output(variable, year):
         return container, fig
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, host='0.0.0.0', port=8050)
+    #app.run_server(debug=True)
